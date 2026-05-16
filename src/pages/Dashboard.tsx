@@ -29,7 +29,7 @@ export function Dashboard() {
 				<div className="flex items-center gap-4">
 					<div className="bg-white px-5 py-2.5 rounded-2xl border border-outline shadow-sm flex items-center gap-3">
 						<CalendarIcon className="w-5 h-5 text-primary stroke-[3px]" />
-						<span className="text-label-sm font-black text-on-surface">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+						<span className="text-label-sm font-black text-on-surface">{new Date().toLocaleDateString("id-ID", { month: "short", day: "numeric", year: "numeric" })}</span>
 					</div>
 				</div>
 			</div>

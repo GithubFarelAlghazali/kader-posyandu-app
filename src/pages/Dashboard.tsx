@@ -7,15 +7,15 @@ import { motion } from "motion/react";
 import { Button } from "../components/atoms/Button";
 
 const mockData = [
-	{ name: "Normal", value: 850, color: "#b50457" },
-	{ name: "At Risk", value: 256, color: "#d82d70" },
-	{ name: "Stunted", value: 142, color: "#ba1a1a" },
+	{ name: "Normal", value: 243, color: "#b50457" },
+	{ name: "Beresiko", value: 5, color: "#d82d70" },
+	{ name: "Stunting", value: 8, color: "#ba1a1a" },
 ];
 
 const alerts = [
-	{ id: 1, name: "Budi Santoso", issue: "Weight dropped by 1.2kg", type: "error", time: "10m ago" },
-	{ id: 2, name: "Ayu Lestari", issue: "Missed 2 month checkup", type: "warning", time: "2h ago" },
-	{ id: 3, name: "Leo M.", issue: "Vaccination overdue", type: "warning", time: "5h ago" },
+	{ id: 1, name: "Keysha Latuhayu", issue: "Berat badan turun 1kg", type: "error", time: "10 menit lalu" },
+	{ id: 2, name: "Ayu Lestari", issue: "Gejala demam berdarah", type: "warning", time: "2 jam lalu" },
+	{ id: 3, name: "Leo Wijaya", issue: "Demam", type: "warning", time: "3 jam lalu" },
 ];
 
 export function Dashboard() {
@@ -48,12 +48,11 @@ export function Dashboard() {
 				<motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="lg:col-span-8 bg-white p-8 rounded-3xl border border-outline-variant/30 shadow-clinical flex flex-col min-h-[450px]">
 					<div className="flex justify-between items-center mb-10">
 						<div>
-							<h3 className="text-title-sm font-black text-on-surface">Growth Status Distribution</h3>
-							<p className="text-label-sm text-on-surface font-bold opacity-60 uppercase tracking-widest">Height-for-Age (HAZ) Z-scores</p>
+							<h3 className="text-title-sm font-black text-on-surface">Statistik Peserta</h3>
 						</div>
 						<select className="bg-surface-container-low border border-outline-variant/30 rounded-xl text-label-sm font-black px-4 py-2 outline-none focus:ring-2 focus:ring-primary/20">
-							<option>Last 30 Days</option>
-							<option>Last Quarter</option>
+							<option>30 Hari Terakhir</option>
+							<option>7 Hari terakhir</option>
 						</select>
 					</div>
 
@@ -87,8 +86,8 @@ export function Dashboard() {
 				<div className="lg:col-span-4 space-y-8">
 					<motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-3xl border border-outline-variant/30 shadow-clinical">
 						<div className="flex justify-between items-center mb-8">
-							<h3 className="text-title-sm font-black text-on-surface">Recent Alerts</h3>
-							<button className="text-label-sm text-primary font-black hover:underline decoration-2 underline-offset-4">View All</button>
+							<h3 className="text-title-sm font-black text-on-surface">Info Terbaru</h3>
+							<button className="text-label-sm text-primary font-black hover:underline decoration-2 underline-offset-4">Lihat Semua</button>
 						</div>
 
 						<div className="flex flex-col gap-5">
@@ -112,7 +111,7 @@ export function Dashboard() {
 
 					{/* Quick Action Bar */}
 					<Button variant="secondary" className="bg-primary hover:bg-white hover:text-primary-container cursor-pointer text-on-primary p-8 rounded-3xl shadow-2xl relative overflow-hidden group w-full z-10 font-bold ">
-						Begin Screening Session
+						Mulai Sesi Screening
 					</Button>
 				</div>
 			</div>

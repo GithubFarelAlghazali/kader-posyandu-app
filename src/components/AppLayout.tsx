@@ -16,6 +16,7 @@ const navItems = [
 	{ id: "queue", label: "Antrean", icon: ListOrdered },
 	{ id: "calendar", label: "Kalender", icon: Calendar },
 	{ id: "media", label: "Manajemen Media", icon: LibraryBig },
+	{ id: "user-profile", label: "Profil Pengguna", icon: Users }, 
 ];
 
 export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
@@ -28,12 +29,14 @@ export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
 						<span className="text-2xl font-bold tracking-tighter text-primary">Dashboard Kader</span>
 					</div>
 
+
 					<div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10">
 						<div className="overflow-hidden">
 							<h2 className="text-title-sm font-black text-on-surface truncate">Dr. Sarah</h2>
 							<p className="text-label-sm text-secondary font-bold truncate">Dokter Umum</p>
+            </div>
 						</div>
-					</div>
+			
 
 					<nav className="flex-1 flex flex-col gap-2">
 						{navItems.map((item) => (

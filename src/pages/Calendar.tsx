@@ -42,36 +42,6 @@ export function Calendar() {
 			</div>
 
 			{/* Status Card */}
-			<motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[40px] p-10 border border-outline-variant/30 shadow-clinical relative overflow-hidden group">
-				<div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-bl-full -z-0 blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
-
-				<div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-10 relative z-10">
-					<div>
-						<h2 className="text-title-sm font-black text-primary uppercase tracking-[4px] mb-2">POSYANDU MAWAR 1</h2>
-						<p className="text-body-md text-on-surface font-black opacity-40">Sesi Imunisasi & Timbang Terpadu</p>
-					</div>
-					<div className="bg-primary text-on-primary px-5 py-2 rounded-full flex items-center gap-3 shadow-lg shadow-primary/20">
-						<span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-						<span className="text-[11px] font-black uppercase tracking-widest">Sedang Berjalan</span>
-					</div>
-				</div>
-
-				<div className="grid grid-cols-2 gap-10 mb-10 py-10 border-y border-outline-variant/10 relative z-10">
-					<div className="text-center space-y-2">
-						<p className="text-label-sm text-on-surface font-black opacity-40 uppercase tracking-widest">Antrean Saat Ini</p>
-						<p className="text-display-lg text-on-surface font-black text-6xl">014</p>
-					</div>
-					<div className="text-center space-y-2 border-l border-outline-variant/10">
-						<p className="text-label-sm text-on-surface font-black opacity-40 uppercase tracking-widest">Sisa Antrean</p>
-						<p className="text-display-lg text-primary font-black text-6xl">8</p>
-					</div>
-				</div>
-
-				<Button size="lg" className="w-full relative z-10 py-6 text-lg shadow-xl hover:shadow-2xl font-black rounded-3xl text-white">
-					<Ticket className="w-6 h-6 rotate-45" strokeWidth={3} />
-					<span className="uppercase tracking-[3px]">Ambil Nomor Antrean</span>
-				</Button>
-			</motion.div>
 
 			{/* Calendar Section */}
 			<div className="space-y-8">

@@ -12,11 +12,11 @@ interface LayoutProps {
 
 const navItems = [
 	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-	{ id: "patients", label: "Patients", icon: Users },
-	{ id: "queue", label: "Queue", icon: ListOrdered },
-	{ id: "calendar", label: "Calendar", icon: Calendar },
-	{ id: "media", label: "Media CMS", icon: LibraryBig },
-	{ id: "user-profile", label: "Profil", icon: Users }, // Tambahkan menu user profile jika ingin di nav
+	{ id: "patients", label: "Peserta", icon: Users },
+	{ id: "queue", label: "Antrean", icon: ListOrdered },
+	{ id: "calendar", label: "Kalender", icon: Calendar },
+	{ id: "media", label: "Manajemen Media", icon: LibraryBig },
+	{ id: "user-profile", label: "Profil Pengguna", icon: Users }, 
 ];
 
 export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
@@ -26,20 +26,17 @@ export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
 				{/* Desktop Sidebar */}
 				<aside className="hidden lg:flex flex-col w-72 border-r border-outline-variant/20 bg-white p-6 shadow-sm">
 					<div className="flex items-center gap-3 mb-10">
-						<span className="text-2xl font-black tracking-tighter text-primary">VitalityTrack</span>
+						<span className="text-2xl font-bold tracking-tighter text-primary">Dashboard Kader</span>
 					</div>
 
-					<button className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10 w-full text-left transition hover:bg-primary/10 group" onClick={() => setActiveTab("user-profile")}>
-						<img
-							src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop"
-							className="w-12 h-12 rounded-xl object-cover border-2 border-primary shadow-sm group-hover:scale-105 transition-transform"
-							alt="Avatar"
-						/>
+
+					<div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10">
 						<div className="overflow-hidden">
-							<h2 className="text-title-sm font-black text-on-surface truncate group-hover:text-primary transition-colors">Dr. Sarah Kader</h2>
-							<p className="text-label-sm text-secondary font-bold truncate">Lead Specialist</p>
+							<h2 className="text-title-sm font-black text-on-surface truncate">Dr. Sarah</h2>
+							<p className="text-label-sm text-secondary font-bold truncate">Dokter Umum</p>
+            </div>
 						</div>
-					</button>
+			
 
 					<nav className="flex-1 flex flex-col gap-2">
 						{navItems.map((item) => (
@@ -59,7 +56,7 @@ export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
 
 					<Button className="mt-auto w-full shadow-lg text-white" onClick={() => setActiveTab("new-exam")}>
 						<Plus className="w-6 h-6" strokeWidth={3} />
-						<span className="font-white  uppercase tracking-widest">New Examination</span>
+						<span className="font-white  uppercase tracking-widest">Periksa Pasien</span>
 					</Button>
 				</aside>
 

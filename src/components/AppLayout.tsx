@@ -14,7 +14,7 @@ const navItems = [
 	{ id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
 	{ id: "patients", label: "Peserta", icon: Users },
 	{ id: "queue", label: "Antrean", icon: ListOrdered },
-	{ id: "calendar", label: "Kalendar", icon: Calendar },
+	{ id: "calendar", label: "Kalender", icon: Calendar },
 	{ id: "media", label: "Manajemen Media", icon: LibraryBig },
 ];
 

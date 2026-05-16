@@ -7,29 +7,29 @@ import { cn } from "../lib/utils";
 const mediaData = [
 	{
 		id: "1",
-		title: "Daily Nutrition Guide for Toddlers",
-		description: "A comprehensive video guide for parents on balanced meals for children aged 1-3 years.",
+		title: "Nutrisi Harian untuk Balita",
+		description: "Panduan bagi orang tua untuk memenuhi nutrisi anak dengan usia dibawah 3t tahun",
 		type: "Video",
-		category: "Nutrition",
-		status: "Published",
+		category: "Nutrisi",
+		status: "Dipublikasikan",
 		thumbnail: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=400&auto=format&fit=crop",
 	},
 	{
 		id: "2",
-		title: "Standard Immunization Schedule 2024",
-		description: "Printable chart showing required vaccines from birth to 5 years.",
+		title: "Jadwal Imunisasi 2026",
+		description: "Jadwal imunisasi bagi bayi hingga usia 5 tahun",
 		type: "PDF",
-		category: "Immunization",
-		status: "Published",
+		category: "Imunisasi",
+		status: "Dipublikasikan",
 		thumbnail: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=400&auto=format&fit=crop",
 	},
 	{
 		id: "3",
-		title: "Understanding Percentiles",
-		description: "Visual explainer on how to read and interpret WHO child growth standards charts.",
-		type: "Infographic",
-		category: "Growth",
-		status: "Draft",
+		title: "Perkembangan Stunting di Indonesia",
+		description: "Infografis tentang data perkembangan status stunting di Indonesia",
+		type: "Infografis",
+		category: "Perkembangan",
+		status: "Arsip",
 		thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop",
 	},
 ];
@@ -99,7 +99,7 @@ export function MediaCMS() {
 							<div
 								className={cn(
 									"absolute top-6 right-6 text-[10px] uppercase tracking-[2px] px-3 py-2 rounded-xl shadow-xl border-2 font-black transition-all",
-									item.status === "Published" ? "bg-white text-primary border-primary/20" : "bg-surface-container-high text-on-surface border-outline-variant/50",
+									item.status === "Dipublikasikan" ? "bg-white text-primary border-primary/20" : "bg-surface-container-high text-on-surface border-outline-variant/50",
 								)}
 							>
 								{item.status}

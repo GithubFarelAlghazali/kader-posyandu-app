@@ -16,6 +16,7 @@ const navItems = [
 	{ id: "queue", label: "Queue", icon: ListOrdered },
 	{ id: "calendar", label: "Calendar", icon: Calendar },
 	{ id: "media", label: "Media CMS", icon: LibraryBig },
+	{ id: "user-profile", label: "Profil", icon: Users }, // Tambahkan menu user profile jika ingin di nav
 ];
 
 export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
@@ -28,13 +29,17 @@ export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
 						<span className="text-2xl font-black tracking-tighter text-primary">VitalityTrack</span>
 					</div>
 
-					<div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10">
-						<img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop" className="w-12 h-12 rounded-xl object-cover border-2 border-primary shadow-sm" alt="Avatar" />
+					<button className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10 w-full text-left transition hover:bg-primary/10 group" onClick={() => setActiveTab("user-profile")}>
+						<img
+							src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop"
+							className="w-12 h-12 rounded-xl object-cover border-2 border-primary shadow-sm group-hover:scale-105 transition-transform"
+							alt="Avatar"
+						/>
 						<div className="overflow-hidden">
-							<h2 className="text-title-sm font-black text-on-surface truncate">Dr. Sarah Kader</h2>
+							<h2 className="text-title-sm font-black text-on-surface truncate group-hover:text-primary transition-colors">Dr. Sarah Kader</h2>
 							<p className="text-label-sm text-secondary font-bold truncate">Lead Specialist</p>
 						</div>
-					</div>
+					</button>
 
 					<nav className="flex-1 flex flex-col gap-2">
 						{navItems.map((item) => (

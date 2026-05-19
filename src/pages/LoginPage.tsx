@@ -1,0 +1,85 @@
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+
+const LoginPage: React.FC = () => {
+	const [role, setRole] = useState<"pasien" | "kader">("kader");
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const navigate = useNavigate();
+
+	const handleLogin = (e: React.FormEvent) => {
+		e.preventDefault();
+		// Dummy login: set isLoggedIn true
+		localStorage.setItem("isLoggedIn", "true");
+		navigate("/dashboard");
+	};
+
+	return (
+		<div className="min-h-screen flex flex-col items-center justify-center bg-pink-50">
+			<div className="w-full max-w-md bg-white bg-opacity-60 rounded-3xl shadow-lg p-8 flex flex-col items-center">
+				<h2 className="text-2xl font-bold mb-2 text-center">Portal Kader</h2>
+				<p className="mb-6 text-center text-gray-600">Silakan masuk untuk mengelola data posyandu</p>
+				<div className="flex w-full mb-6">
+					<button className={`flex-1 py-2 rounded-l-2xl font-semibold transition-colors ${role === "pasien" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("pasien")}>
+						Pasien
+					</button>
+					<button className={`flex-1 py-2 rounded-r-2xl font-semibold transition-colors ${role === "kader" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("kader")}>
+						Kader
+					</button>
+				</div>
+				<form className="w-full" onSubmit={handleLogin}>
+					<div className="w-full mb-4">
+						<label className="block text-sm mb-1">Username</label>
+						<input
+							type="text"
+							placeholder="Masukkan username"
+							className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+						/>
+					</div>
+					<div className="w-full mb-2">
+						<label className="block text-sm mb-1">Password</label>
+						<div className="relative">
+							<input
+								type={showPassword ? "text" : "password"}
+								placeholder="Masukkan password"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+							/>
+							<button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400" onClick={() => setShowPassword((s) => !s)} tabIndex={-1}>
+								{showPassword ? "🙈" : "👁️"}
+							</button>
+						</div>
+						<div className="text-right mt-1">
+							<a href="#" className="text-xs text-pink-500 hover:underline">
+								Lupa Password?
+							</a>
+						</div>
+					</div>
+					<button
+						type="button"
+						className="w-full mt-4 py-3 rounded-2xl bg-pink-600 text-white font-bold text-lg shadow-md hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
+						onClick={() => (window.location.href = "/")}
+					>
+						Login <span className="ml-1">⇨</span>
+					</button>
+				</form>
+				<div className="mt-6 text-center">
+					<p className="text-sm text-gray-500 mb-2">Mengalami kendala masuk?</p>
+					<button className="w-full p-2 rounded-2xl  text-pink-700 font-semibold hover:bg-pink-100 transition-colors">Hubungi Admin Puskesmas</button>
+				</div>
+				<div className="mt-4 text-center">
+					<span className="text-sm text-gray-600">Belum punya akun? </span>
+					<Link to="/register" className="text-pink-600 font-semibold hover:underline">
+						Register
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default LoginPage;

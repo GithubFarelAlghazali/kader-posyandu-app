@@ -22,46 +22,46 @@ const RegisterPage: React.FC = () => {
 		<div className="min-h-screen flex flex-col items-center justify-center bg-pink-50">
 			<div className="w-full max-w-md bg-white bg-opacity-60 rounded-3xl shadow-lg p-8 flex flex-col items-center">
 				<h2 className="text-2xl font-bold mb-2 text-center">Daftar Akun</h2>
-				<p className="mb-6 text-center text-gray-600">Mari bergabung untuk kesehatan ibu dan anak yang lebih baik.</p>
-				<div className="flex w-full mb-6">
-					<button className={`flex-1 py-2 rounded-l-2xl font-semibold transition-colors ${role === "pasien" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("pasien")}>
-						Pasien
-					</button>
-					<button className={`flex-1 py-2 rounded-r-2xl font-semibold transition-colors ${role === "kader" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("kader")}>
-						Kader
-					</button>
-				</div>
 				<form className="w-full" onSubmit={handleRegister}>
 					<div className="w-full mb-4">
-						<input
-							type="text"
-							placeholder="Masukkan nama lengkap Anda"
-							className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
+						<label htmlFor="">
+							Username
+							<input
+								type="text"
+								placeholder="Masukkan Nama Lengkap"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+							/>
+						</label>
 					</div>
 					<div className="w-full mb-4">
-						<input
-							type="text"
-							placeholder="Contoh: 08123456789 atau email@pos.id"
-							className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
-							value={contact}
-							onChange={(e) => setContact(e.target.value)}
-						/>
+						<label htmlFor="">
+							Email
+							<input
+								type="email"
+								placeholder="Masukkan Email Aktif"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={contact}
+								onChange={(e) => setContact(e.target.value)}
+							/>
+						</label>
 					</div>
 					<div className="w-full mb-4">
 						<div className="relative">
-							<input
-								type={showPassword ? "text" : "password"}
-								placeholder="Min. 8 karakter"
-								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							/>
-							<button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400" onClick={() => setShowPassword((s) => !s)} tabIndex={-1}>
-								{showPassword ? "🙈" : "👁️"}
-							</button>
+							<label htmlFor="">
+								Password
+								<input
+									type={showPassword ? "text" : "password"}
+									placeholder="Min. 8 karakter"
+									className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+								/>
+								<button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400" onClick={() => setShowPassword((s) => !s)} tabIndex={-1}>
+									{showPassword ? "🙈" : "👁️"}
+								</button>
+							</label>
 						</div>
 					</div>
 					<div className="w-full mb-4">

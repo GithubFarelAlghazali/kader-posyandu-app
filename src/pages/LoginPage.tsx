@@ -18,16 +18,8 @@ const LoginPage: React.FC = () => {
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center bg-pink-50">
 			<div className="w-full max-w-md bg-white bg-opacity-60 rounded-3xl shadow-lg p-8 flex flex-col items-center">
-				<h2 className="text-2xl font-bold mb-2 text-center">Portal Kader</h2>
-				<p className="mb-6 text-center text-gray-600">Silakan masuk untuk mengelola data posyandu</p>
-				<div className="flex w-full mb-6">
-					<button className={`flex-1 py-2 rounded-l-2xl font-semibold transition-colors ${role === "pasien" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("pasien")}>
-						Pasien
-					</button>
-					<button className={`flex-1 py-2 rounded-r-2xl font-semibold transition-colors ${role === "kader" ? "bg-pink-600 text-white" : "bg-pink-100 text-pink-700"}`} onClick={() => setRole("kader")}>
-						Kader
-					</button>
-				</div>
+				<h2 className="text-2xl font-bold mb-2 text-center">Login Kader</h2>
+
 				<form className="w-full" onSubmit={handleLogin}>
 					<div className="w-full mb-4">
 						<label className="block text-sm mb-1">Username</label>
@@ -64,7 +56,7 @@ const LoginPage: React.FC = () => {
 						className="w-full mt-4 py-3 rounded-2xl bg-pink-600 text-white font-bold text-lg shadow-md hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
 						onClick={() => (window.location.href = "/")}
 					>
-						Login 
+						Login
 					</button>
 				</form>
 				<div className="mt-6 text-center">

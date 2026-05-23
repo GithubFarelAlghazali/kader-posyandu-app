@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
 						className="w-full mt-4 py-3 rounded-2xl bg-pink-600 text-white font-bold text-lg shadow-md hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
 						onClick={() => (window.location.href = "/")}
 					>
-						Login <span className="ml-1">⇨</span>
+						Login 
 					</button>
 				</form>
 				<div className="mt-6 text-center">

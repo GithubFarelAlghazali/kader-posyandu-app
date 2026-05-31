@@ -4,6 +4,9 @@ import { useNavigate, Link } from "react-router-dom";
 const LoginPage: React.FC = () => {
 	const [role, setRole] = useState<"pasien" | "kader">("kader");
 	const [username, setUsername] = useState("");
+	const [nik, setNik] = useState("");
+	const [email, setEmail] = useState("");
+	const [alamat, setAlamat] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
@@ -22,13 +25,13 @@ const LoginPage: React.FC = () => {
 
 				<form className="w-full" onSubmit={handleLogin}>
 					<div className="w-full mb-4">
-						<label className="block text-sm mb-1">Username</label>
+						<label className="block text-sm mb-1">Email</label>
 						<input
-							type="text"
-							placeholder="Masukkan username"
+							type="email"
+							placeholder="Masukkan email"
 							className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 						/>
 					</div>
 					<div className="w-full mb-2">

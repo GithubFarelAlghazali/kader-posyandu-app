@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 const RegisterPage: React.FC = () => {
-	const [role, setRole] = useState<"pasien" | "kader">("pasien");
 	const [name, setName] = useState("");
-	const [contact, setContact] = useState("");
+	const [email, setEmail] = useState("");
+	const [nik, setNik] = useState("");
+	const [alamat, setAlamat] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -42,8 +43,32 @@ const RegisterPage: React.FC = () => {
 								type="email"
 								placeholder="Masukkan Email Aktif"
 								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
-								value={contact}
-								onChange={(e) => setContact(e.target.value)}
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+							/>
+						</label>
+					</div>
+					<div className="w-full mb-4">
+						<label htmlFor="">
+							NIK
+							<input
+								type="text"
+								placeholder="Masukkan NIK"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={nik}
+								onChange={(e) => setNik(e.target.value)}
+							/>
+						</label>
+					</div>
+					<div className="w-full mb-4">
+						<label htmlFor="">
+							Alamat
+							<input
+								type="text"
+								placeholder="Masukkan Alamat Domisili"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={alamat}
+								onChange={(e) => setAlamat(e.target.value)}
 							/>
 						</label>
 					</div>

@@ -3,6 +3,7 @@ import { ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import { Button } from "./atoms/Button";
+import { useAuth } from "../context/AuthContext";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -20,6 +21,8 @@ const navItems = [
 ];
 
 export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
+	const { userData } = useAuth();
+
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
 			<div className="flex h-screen overflow-hidden">
@@ -33,8 +36,7 @@ export function AppLayout({ children, activeTab, setActiveTab }: LayoutProps) {
 
 					<div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-2xl mb-8 border border-outline-variant/10">
 						<div className="overflow-hidden">
-							<h2 className="text-title-sm font-black text-on-surface truncate">Dr. Sarah</h2>
-							<p className="text-label-sm text-secondary font-bold truncate">Dokter Umum</p>
+							<h2 className="text-title-sm font-black text-on-surface truncate">{userData?.nama}</h2>
 						</div>
 					</div>
 

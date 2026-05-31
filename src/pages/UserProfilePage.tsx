@@ -1,16 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../components/atoms/Button";
 import { motion } from "motion/react";
 import { LogOut, User, Mail, Edit2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { auth } from "../firebase/config";
 
 export default function UserProfilePage() {
-	// Dummy user data
-	const user = {
-		name: "Ayu Lestari",
-		email: "ayu.lestari@email.com",
-		avatar: "https://ui-avatars.com/api/?name=Ayu+Lestari&background=0D8ABC&color=fff",
-		role: "Kader Posyandu",
-		location: "Posyandu Mawar 1, Jakarta",
+	const { userData } = useAuth();
+	const [loading, setLoading] = useState(false);
+
+	const handleLogout = async () => {
+		const konfirmasi = window.confirm(`Halo ${userData?.nama || "Kader"}, Apakah Anda yakin ingin keluar dari aplikasi?`);
+
+		if (!konfirmasi) return;
+
+		setLoading(true);
+		try {
+			await auth.signOut();
+			alert("Anda telah berhasil keluar.");
+		} catch (error) {
+			console.error("Gagal melakukan logout:", error);
+			alert("Terjadi kesalahan saat mencoba logout. Silakan coba lagi.");
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -25,18 +38,16 @@ export default function UserProfilePage() {
 			<motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[40px] p-10 border border-outline-variant/30 shadow-clinical relative overflow-hidden group">
 				<div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-bl-full -z-0 blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
 				<div className="flex flex-col sm:flex-row items-center gap-8 mb-8 relative z-10">
-					<img src={user.avatar} alt="Avatar" className="w-28 h-28 rounded-full border-4 border-primary/20 shadow-lg object-cover bg-surface-container" />
+					<img src={userData.avatar} alt="Avatar" className="w-28 h-28 rounded-full border-4 border-primary/20 shadow-lg object-cover bg-surface-container" />
 					<div className="flex-1 min-w-0 space-y-2">
 						<h2 className="text-title-lg font-black text-on-surface truncate flex items-center gap-2">
-							<User className="w-6 h-6 text-primary" /> {user.name}
+							<User className="w-6 h-6 text-primary" /> {userData.nama}
 						</h2>
 						<div className="flex items-center gap-2 text-label-md text-on-surface opacity-60">
-							<Mail className="w-4 h-4 text-primary" /> {user.email}
+							<Mail className="w-4 h-4 text-primary" /> {userData.email}
 						</div>
 						<div className="flex items-center gap-2 text-label-md text-on-surface opacity-60">
-							<span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold text-xs uppercase tracking-widest">{user.role}</span>
-							<span className="mx-2">•</span>
-							<span>{user.location}</span>
+							<span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold text-xs uppercase tracking-widest">{userData.role}</span>
 						</div>
 					</div>
 				</div>
@@ -44,7 +55,7 @@ export default function UserProfilePage() {
 					<Button size="lg" className="flex-1 flex items-center justify-center gap-2 font-black rounded-2xl" variant="outline">
 						<Edit2 className="w-5 h-5" /> Edit Profil
 					</Button>
-					<Button size="lg" className="flex-1 flex items-center justify-center gap-2 font-black rounded-2xl bg-error text-white hover:bg-error/90">
+					<Button onClick={handleLogout} size="lg" className="flex-1 flex items-center justify-center gap-2 font-black rounded-2xl bg-error text-white hover:bg-error/90">
 						<LogOut className="w-5 h-5" /> Logout
 					</Button>
 				</div>
@@ -56,19 +67,19 @@ export default function UserProfilePage() {
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
 					<div>
 						<p className="text-label-md font-bold text-on-surface opacity-60 mb-1">Nama Lengkap</p>
-						<p className="text-title-md font-black text-on-surface">{user.name}</p>
+						<p className="text-title-md font-black text-on-surface">{userData?.nama}</p>
 					</div>
 					<div>
 						<p className="text-label-md font-bold text-on-surface opacity-60 mb-1">Email</p>
-						<p className="text-title-md font-black text-on-surface">{user.email}</p>
+						<p className="text-title-md font-black text-on-surface">{userData?.email}</p>
 					</div>
 					<div>
 						<p className="text-label-md font-bold text-on-surface opacity-60 mb-1">Peran</p>
-						<p className="text-title-md font-black text-on-surface">{user.role}</p>
+						<p className="text-title-md font-black text-on-surface">{userData?.role}</p>
 					</div>
 					<div>
-						<p className="text-label-md font-bold text-on-surface opacity-60 mb-1">Lokasi</p>
-						<p className="text-title-md font-black text-on-surface">{user.location}</p>
+						<p className="text-label-md font-bold text-on-surface opacity-60 mb-1">Alamat</p>
+						<p className="text-title-md font-black text-on-surface">{userData?.alamat}</p>
 					</div>
 				</div>
 			</div>

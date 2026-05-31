@@ -42,7 +42,6 @@ const RegisterPage: React.FC = () => {
 			return;
 		}
 
-		setLoading(false);
 		setLoading(true);
 
 		try {
@@ -68,7 +67,7 @@ const RegisterPage: React.FC = () => {
 			alert(`Registrasi berhasil sebagai kader!`);
 
 			// 5. Arahkan ke rute dashboard utama (logika pengecekan role ada di App.tsx/Router tingkat atas)
-			navigate("/dashboard");
+			navigate("/login");
 		} catch (err: any) {
 			// Mapping error bawaan firebase agar lebih ramah dibaca pengguna lokal
 			if (err.code === "auth/email-already-in-use") {
@@ -120,8 +119,8 @@ const RegisterPage: React.FC = () => {
 							<input
 								required
 								type="text"
-								maxlength="16"
-								minlength="16"
+								maxLength="16"
+								minLength="16"
 								placeholder="Masukkan NIK"
 								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
 								value={nik}
@@ -152,7 +151,7 @@ const RegisterPage: React.FC = () => {
 									placeholder="Min. 8 karakter"
 									className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
 									value={password}
-									minlength="8"
+									minLength="8"
 									onChange={(e) => setPassword(e.target.value)}
 								/>
 								<button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-pink-400" onClick={() => setShowPassword((s) => !s)} tabIndex={-1}>
@@ -165,7 +164,7 @@ const RegisterPage: React.FC = () => {
 						<div className="relative">
 							<input
 								required
-								minlength="8"
+								minLength="8"
 								type={showConfirmPassword ? "text" : "password"}
 								placeholder="Ulangi kata sandi"
 								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"

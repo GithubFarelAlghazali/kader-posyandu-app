@@ -1,45 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "../firebase/config";
-import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginPage: React.FC = () => {
+	const [role, setRole] = useState<"pasien" | "kader">("kader");
+	const [username, setUsername] = useState("");
+	const [nik, setNik] = useState("");
 	const [email, setEmail] = useState("");
+	const [alamat, setAlamat] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
-	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
 
-	const handleLogin = async (e: React.FormEvent) => {
+	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault();
-		setError("");
-		setLoading(true);
-
-		try {
-			await signInWithEmailAndPassword(auth, email.trim(), password);
-			navigate("/dashboard");
-		} catch (err) {
-			console.error("Firebase login error", err);
-
-			switch (err) {
-				case "auth/invalid-credential":
-					setError("Email atau kata sandi salah");
-					break;
-				case "auth/invalid-email":
-					setError("Format email tidak valid");
-					break;
-				case "auth/user-disabled":
-					setError("Pengguna dinonaktifkan");
-					break;
-				default:
-					setError("Terjadi kesalahan saat mencoba masuk. Silakan coba lagi");
-					break;
-			}
-		} finally {
-			console.log(error);
-			setLoading(false);
-		}
+		// Dummy login: set isLoggedIn true
+		localStorage.setItem("isLoggedIn", "true");
+		navigate("/dashboard");
 	};
 
 	return (
@@ -51,7 +27,6 @@ const LoginPage: React.FC = () => {
 					<div className="w-full mb-4">
 						<label className="block text-sm mb-1">Email</label>
 						<input
-							required
 							type="email"
 							placeholder="Masukkan email"
 							className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
@@ -63,7 +38,6 @@ const LoginPage: React.FC = () => {
 						<label className="block text-sm mb-1">Password</label>
 						<div className="relative">
 							<input
-								required
 								type={showPassword ? "text" : "password"}
 								placeholder="Masukkan password"
 								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"

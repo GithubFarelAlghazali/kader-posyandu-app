@@ -13,8 +13,15 @@ const RegisterPage: React.FC = () => {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [role, setRole] = useState("kader");
 
+	// const handleRegister = (e: React.FormEvent) => {
+	// 	e.preventDefault();
+	// 	// Dummy register: langsung login
+	// 	localStorage.setItem("isLoggedIn", "true");
+	// 	navigate("/dashboard");
+	// };
+
+	// State tambahan untuk UX & Handling Error
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
@@ -24,6 +31,7 @@ const RegisterPage: React.FC = () => {
 		e.preventDefault();
 		setError("");
 
+		// 1. Validasi sederhana kecocokan password frontend
 		if (password !== confirmPassword) {
 			setError("Kata sandi dan konfirmasi kata sandi tidak cocok.");
 			return;
@@ -43,7 +51,7 @@ const RegisterPage: React.FC = () => {
 			const user = userCredential.user;
 
 			// 3. Tentukan status awal akun berdasarkan role (Kader langsung aktif, Pasien butuh verifikasi)
-			const statusAwal = role === "kader" ? "aktif" : "menunggu_verifikasi";
+			// const statusAwal = role === "kader" ? "aktif" : "menunggu_verifikasi";
 
 			// 4. Simpan metadata profil ke Cloud Firestore menggunakan UID dari Auth
 			await setDoc(doc(db, "users", user.uid), {
@@ -52,8 +60,8 @@ const RegisterPage: React.FC = () => {
 				email: email,
 				nik: nik,
 				alamat: alamat,
-				role: "kader",
-				status_akun: statusAwal,
+				role: "kader", // [kader, pasien-anak, pasien-hamil, pasien-dewasa, pasien-lansia]
+				// status_akun: statusAwal,
 				dibuat_pada: new Date().toISOString(),
 			});
 

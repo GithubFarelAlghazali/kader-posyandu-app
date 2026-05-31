@@ -12,12 +12,12 @@ const RegisterPage: React.FC = () => {
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const navigate = useNavigate();
 
-	const handleRegister = (e: React.FormEvent) => {
-		e.preventDefault();
-		// Dummy register: langsung login
-		localStorage.setItem("isLoggedIn", "true");
-		navigate("/dashboard");
-	};
+	// const handleRegister = (e: React.FormEvent) => {
+	// 	e.preventDefault();
+	// 	// Dummy register: langsung login
+	// 	localStorage.setItem("isLoggedIn", "true");
+	// 	navigate("/dashboard");
+	// };
 
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center bg-pink-50">

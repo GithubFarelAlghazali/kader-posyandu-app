@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Ruler, Activity, Save, ClipboardList, Search, X } from "lucide-react";
+import { User, Ruler, Activity, Save, ClipboardList, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { db } from "../firebase/config";
 import { collection, query, where, onSnapshot, addDoc } from "firebase/firestore";
 import { cn } from "../lib/utils";
 
-// Interface data pasien dari koleksi users
 interface PatientSuggestion {
 	uid: string;
 	nama: string;
@@ -14,13 +13,11 @@ interface PatientSuggestion {
 }
 
 export function NewExamination() {
-	// Database lokal untuk penampung auto-complete
 	const [suggestions, setSuggestions] = useState<PatientSuggestion[]>([]);
 	const [filteredSuggestions, setFilteredSuggestions] = useState<PatientSuggestion[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
-	// State Form Data sesuai instruksi baru
 	const [selectedPatient, setSelectedPatient] = useState<PatientSuggestion | null>(null);
 	const [searchName, setSearchName] = useState("");
 	const [weight, setWeight] = useState("");
@@ -28,12 +25,14 @@ export function NewExamination() {
 	const [glucose, setGlucose] = useState("");
 	const [sistolik, setSistolik] = useState("");
 	const [distolik, setDistolik] = useState("");
+
+	// State Status baru sesuai instruksi
+	const [status, setStatus] = useState("Normal");
 	const [catatan, setCatatan] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [alert, setAlert] = useState("");
 	const [displayAlert, setDisplayAlert] = useState(false);
 
-	// 1. Tarik data seluruh peserta terdaftar dari Firestore untuk modal auto-complete
 	useEffect(() => {
 		const q = query(collection(db, "users"), where("role", "==", "pasien"));
 		const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -49,7 +48,6 @@ export function NewExamination() {
 		return () => unsubscribe();
 	}, []);
 
-	// 2. Filter nama peserta saat kader mengetik
 	useEffect(() => {
 		if (!searchName.trim()) {
 			setFilteredSuggestions([]);
@@ -59,7 +57,6 @@ export function NewExamination() {
 		setFilteredSuggestions(filtered);
 	}, [searchName, suggestions]);
 
-	// 3. Deteksi klik di luar komponen untuk menutup dropdown auto-complete
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -70,7 +67,11 @@ export function NewExamination() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// 4. Aksi Eksekusi Penyimpanan Rekam Medis ke Firestore
+	// Reset status jika user mengganti pilihan pasien untuk menghindari ketidakcocokan data stunting
+	useEffect(() => {
+		setStatus("Normal");
+	}, [selectedPatient]);
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!selectedPatient) {
@@ -83,7 +84,6 @@ export function NewExamination() {
 		try {
 			const sekarang = new Date();
 
-			// Kirim data ke koleksi healthRecord
 			await addDoc(collection(db, "healthRecord"), {
 				patient_uid: selectedPatient.uid,
 				nama: selectedPatient.nama,
@@ -92,13 +92,13 @@ export function NewExamination() {
 				beratBadan: weight ? Number(weight) : null,
 				tinggiBadan: height ? Number(height) : null,
 				gulaDarah: glucose ? Number(glucose) : null,
-				// Struktur Data Map sesuai instruksimu
 				tekananDarah: {
 					sistolik: sistolik ? Number(sistolik) : null,
 					distolik: distolik ? Number(distolik) : null,
 				},
+				// Field status baru dimasukkan ke payload dokumen Firestore
+				status: status,
 				catatanKeluhan: catatan.trim(),
-				// Waktu pemeriksaan terstandarisasi
 				waktuPemeriksaan: sekarang.toISOString(),
 				tanggalSaja: sekarang.toISOString().split("T")[0],
 			});
@@ -106,7 +106,6 @@ export function NewExamination() {
 			setAlert(`Data rekam medis ${selectedPatient.nama} berhasil disimpan!`);
 			setDisplayAlert(true);
 
-			// Reset form kerja kader
 			setSelectedPatient(null);
 			setSearchName("");
 			setWeight("");
@@ -114,6 +113,7 @@ export function NewExamination() {
 			setGlucose("");
 			setSistolik("");
 			setDistolik("");
+			setStatus("Normal");
 			setCatatan("");
 		} catch (error) {
 			console.error("Gagal menyimpan rekam medis:", error);
@@ -132,7 +132,7 @@ export function NewExamination() {
 			</div>
 
 			<form className="space-y-8" onSubmit={handleSubmit}>
-				{/* Patient Info Card (Auto-complete Section) */}
+				{/* Patient Info Card */}
 				<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] shadow-sm p-8 border border-gray-100 relative">
 					<h3 className="text-md font-black text-gray-800 flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
 						<User className="w-5 h-5 text-pink-600" strokeWidth={2.5} />
@@ -140,7 +140,6 @@ export function NewExamination() {
 					</h3>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative" ref={dropdownRef}>
-						{/* Input Search Nama dengan Dropdown */}
 						<div className="space-y-2 relative">
 							<label className="text-[11px] text-gray-500 font-black uppercase tracking-wider block">Nama Peserta</label>
 							<div className="relative">
@@ -163,7 +162,6 @@ export function NewExamination() {
 								{selectedPatient && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-green-600 bg-green-100 px-2 py-1 rounded-lg uppercase tracking-wide">Terkunci</span>}
 							</div>
 
-							{/* Render Dropdown List Suggestions */}
 							<AnimatePresence>
 								{showDropdown && filteredSuggestions.length > 0 && (
 									<motion.div
@@ -194,7 +192,6 @@ export function NewExamination() {
 							</AnimatePresence>
 						</div>
 
-						{/* Kolom NIK (Auto Fill - Read Only) */}
 						<div className="space-y-2">
 							<label className="text-[11px] text-gray-500 font-black uppercase tracking-wider block">Nomor Induk Kependudukan (NIK)</label>
 							<input
@@ -216,7 +213,6 @@ export function NewExamination() {
 					</h3>
 
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-						{/* Berat Badan */}
 						<div className="space-y-3">
 							<label className="text-[11px] text-gray-700 font-black uppercase tracking-wider flex justify-between items-center">
 								Berat Badan
@@ -233,7 +229,6 @@ export function NewExamination() {
 							/>
 						</div>
 
-						{/* Tinggi Badan */}
 						<div className="space-y-3">
 							<label className="text-[11px] text-gray-700 font-black uppercase tracking-wider flex justify-between items-center">
 								Tinggi Badan
@@ -250,7 +245,6 @@ export function NewExamination() {
 							/>
 						</div>
 
-						{/* Gula Darah */}
 						<div className="space-y-3">
 							<label className="text-[11px] text-gray-700 font-black uppercase tracking-wider flex justify-between items-center">
 								Gula Darah
@@ -265,7 +259,6 @@ export function NewExamination() {
 							/>
 						</div>
 
-						{/* Tekanan Darah (Sistolik & Distolik Nested Box) */}
 						<div className="sm:col-span-3 space-y-3 bg-pink-50/40 p-6 rounded-3xl border border-pink-100/40 mt-2">
 							<p className="text-[11px] text-pink-800 font-black uppercase tracking-widest flex justify-between items-center">
 								Tekanan Darah Kontrol
@@ -303,12 +296,37 @@ export function NewExamination() {
 					</div>
 				</motion.div>
 
-				{/* Input Catatan Tambahan */}
-				<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] shadow-sm p-8 border border-gray-100">
-					<h3 className="text-md font-black text-gray-800 flex items-center gap-3 mb-4 pb-4 border-b border-gray-50">
+				{/* Input Catatan Tambahan & Status */}
+				<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] shadow-sm p-8 border border-gray-100 space-y-6">
+					<h3 className="text-md font-black text-gray-800 flex items-center gap-3 pb-4 border-b border-gray-50">
 						<ClipboardList className="w-5 h-5 text-pink-600" strokeWidth={2.5} />
-						Catatan Medis Tambahan
+						Status & Catatan Tambahan
 					</h3>
+
+					{/* Dropdown Pilihan Status Komponen */}
+					<div className="space-y-2">
+						<label className="text-[11px] text-gray-500 font-black uppercase tracking-wider block" htmlFor="status">
+							Status Kesehatan
+						</label>
+						<select
+							name="status"
+							id="status"
+							value={status}
+							onChange={(e) => setStatus(e.target.value)}
+							className="w-full px-5 py-3.5 bg-gray-50 rounded-2xl border border-gray-100 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400 appearance-none shadow-sm cursor-pointer"
+						>
+							<option value="Normal">Normal</option>
+							<option value="Perhatian">Keluhan Ringan</option>
+							<option value="Risiko">Keluhan Berat</option>
+							{/* Blok Kondisional: Hanya muncul jika p.tipe === "anak" */}
+							{selectedPatient?.tipe === "anak" && (
+								<option value="Stunting" className="text-red-600 font-bold">
+									Stunting (Khusus Anak)
+								</option>
+							)}
+						</select>
+					</div>
+
 					<div className="space-y-2">
 						<label className="text-[11px] text-gray-500 font-black uppercase tracking-wider block">Keluhan atau Keterangan Tambahan Pasien</label>
 						<textarea
@@ -320,13 +338,17 @@ export function NewExamination() {
 						/>
 					</div>
 				</motion.div>
+
 				{/* Alert box */}
 				{displayAlert && (
-					<div className="bg-primary relative text-white w-full flex justify-center rounded-3xl">
-						<p className="p-5 text-xl w-fit font-semibold">{alert}</p>
-						<X className="size-5 absolute top-2 right-5" onClick={() => setDisplayAlert(false)} />
+					<div className="bg-pink-600 relative text-white w-full flex justify-center rounded-3xl p-4 shadow-md">
+						<p className="text-sm font-bold uppercase tracking-wide text-center">{alert}</p>
+						<button type="button" className="absolute top-1/2 right-5 -translate-y-1/2 hover:scale-110 active:scale-90 transition-transform" onClick={() => setDisplayAlert(false)}>
+							<X className="w-5 h-5 stroke-[2.5px]" />
+						</button>
 					</div>
 				)}
+
 				{/* Tombol Aksi Submit Form */}
 				<div className="flex justify-end">
 					<button

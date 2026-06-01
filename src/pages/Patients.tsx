@@ -1,14 +1,13 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Baby, Calendar as CalendarIcon, ChevronRight, Filter, Plus, Search, ShieldAlert, TrendingUp, Users, MapPin, Phone } from "lucide-react";
+import { Baby, Calendar as CalendarIcon, ChevronRight, Filter, Plus, Search, ShieldAlert, TrendingUp, Users, MapPin, Phone, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/atoms/Button";
 import { cn } from "../lib/utils";
 import { db } from "../firebase/config";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 
 type PatientStatus = "Normal" | "Perhatian" | "Risiko";
 
-// 1. Interface disesuaikan persis dengan isi dokumen di gambar console-mu
 interface PatientData {
 	uid: string;
 	nama: string;
@@ -16,46 +15,57 @@ interface PatientData {
 	nik: string;
 	telepon: string;
 	alamat: string;
-	role: "pasien" | "kader"; // role murni string 'pasien'
-	tipe: "anak" | "hamil" | "dewasa" | "lansia"; // pembeda spesifik ada di properti tipe
+	role: "pasien" | "kader";
+	tipe: "anak" | "hamil" | "dewasa" | "lansia";
 	tanggalLahir: string;
 	dibuat_pada: string;
-
-	// Atribut opsional pendukung visual
-	status_pertumbuhan?: PatientStatus;
-	berat_badan?: string;
-	tinggi_badan?: string;
-	terakhir_kunjungan?: string;
 }
 
-const statusStyles: Record<PatientStatus, string> = {
+// Interface tambahan untuk menampung record pemeriksaan terkini dari koleksi healthRecord
+interface HealthRecordData {
+	id: string;
+	patient_uid: string;
+	beratBadan: number | null;
+	tinggiBadan: number | null;
+	gulaDarah: number | null;
+	tekananDarah?: {
+		sistolik: number | null;
+		distolik: number | null;
+	};
+	waktuPemeriksaan: string;
+	status_pertumbuhan?: PatientStatus;
+}
+
+const statusStyles: Record<PatientStatus | "Belum Diperiksa", string> = {
 	Normal: "bg-green-50 text-green-700 border-green-100",
 	Perhatian: "bg-amber-50 text-amber-700 border-amber-100",
 	Risiko: "bg-red-50 text-red-700 border-red-100",
+	"Belum Diperiksa": "bg-gray-50 text-gray-400 border-gray-200 opacity-60",
 };
 
 export default function Patients() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [dbPatients, setDbPatients] = useState<PatientData[]>([]);
+	const [healthRecords, setHealthRecords] = useState<Record<string, HealthRecordData>>({});
 	const [loading, setLoading] = useState(true);
 
-	// 2. Query disesuaikan: Ambil semua dokumen yang memiliki role "pasien"
+	// 1. Listen real-time data pasien
 	useEffect(() => {
 		setLoading(true);
-		const q = query(
-			collection(db, "users"),
-			where("role", "==", "pasien"), // Hanya tarik user dengan role pasien
-		);
+		const qPatients = query(collection(db, "users"), where("role", "==", "pasien"));
 
-		const unsubscribe = onSnapshot(
-			q,
+		const unsubscribePatients = onSnapshot(
+			qPatients,
 			(snapshot) => {
 				const loadedPatients = snapshot.docs.map((doc) => ({
 					...doc.data(),
 				})) as PatientData[];
 
-				// Urutkan alfabetis berdasarkan nama
-				loadedPatients.sort((a, b) => a.nama.localeCompare(b.nama));
+				loadedPatients.sort((a, b) => {
+					const nameA = a.nama || "";
+					const nameB = b.nama || "";
+					return nameA.localeCompare(nameB);
+				});
 
 				setDbPatients(loadedPatients);
 				setLoading(false);
@@ -66,10 +76,43 @@ export default function Patients() {
 			},
 		);
 
-		return () => unsubscribe();
+		return () => unsubscribePatients();
 	}, []);
 
-	// 3. Filter Pencarian & Kategori Tipe Pasien
+	// 2. Listen real-time koleksi healthRecord untuk melacak pemeriksaan terakhir
+	useEffect(() => {
+		const qRecords = query(
+			collection(db, "healthRecord"),
+			orderBy("waktuPemeriksaan", "desc"), // Ambil yang paling baru di atas
+		);
+
+		const unsubscribeRecords = onSnapshot(
+			qRecords,
+			(snapshot) => {
+				const recordMap: Record<string, HealthRecordData> = {};
+
+				snapshot.docs.forEach((doc) => {
+					const data = doc.data() as HealthRecordData;
+					// Karena query diurutkan descending, record pertama yang masuk untuk tiap UID adalah pemeriksaan terbaru
+					if (!recordMap[data.patient_uid]) {
+						recordMap[data.patient_uid] = {
+							id: doc.id,
+							...data,
+						};
+					}
+				});
+
+				setHealthRecords(recordMap);
+			},
+			(error) => {
+				console.error("Gagal memuat data healthRecord:", error);
+			},
+		);
+
+		return () => unsubscribeRecords();
+	}, []);
+
+	// 3. Filter Pencarian
 	const filteredPatients = useMemo(() => {
 		const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -80,11 +123,13 @@ export default function Patients() {
 		return dbPatients.filter((patient) => [patient.nama, patient.nik, patient.alamat, patient.tipe].some((value) => value?.toLowerCase().includes(normalizedQuery)));
 	}, [searchQuery, dbPatients]);
 
-	// 4. Hitung Metrik Ringkasan dari properti 'tipe'
+	// 4. Hitung Metrik Ringkasan Dinamis
 	const metrics = useMemo(() => {
 		const total = dbPatients.length;
 		const anakCount = dbPatients.filter((p) => p.tipe === "anak").length;
-		const perhatianCount = dbPatients.filter((p) => p.status_pertumbuhan === "Perhatian" || p.status_pertumbuhan === "Risiko").length;
+
+		// Hitung jumlah perhatian dari mapping data healthRecords aktif
+		const perhatianCount = Object.values(healthRecords).filter((r) => r.status_pertumbuhan === "Perhatian" || r.status_pertumbuhan === "Risiko").length;
 
 		return [
 			{ title: "Total Peserta", value: total.toString(), label: "Peserta terdaftar", icon: Users },
@@ -92,9 +137,8 @@ export default function Patients() {
 			{ title: "Perlu Perhatian", value: perhatianCount.toString(), label: "Pantauan khusus", icon: ShieldAlert },
 			{ title: "Rata-rata Kunjungan", value: "94%", label: "Tingkat kehadiran", icon: TrendingUp },
 		];
-	}, [dbPatients]);
+	}, [dbPatients, healthRecords]);
 
-	// Helper label tipe pasien
 	const getTipeLabel = (tipe: string) => {
 		switch (tipe) {
 			case "anak":
@@ -108,6 +152,13 @@ export default function Patients() {
 			default:
 				return "Umum";
 		}
+	};
+
+	// Helper memformat string tanggal ISO ke format lokal pendek (DD/MM/YYYY)
+	const formatShortDate = (isoString?: string) => {
+		if (!isoString) return "-";
+		const date = new Date(isoString);
+		return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
 	};
 
 	return (
@@ -173,62 +224,88 @@ export default function Patients() {
 					) : (
 						<AnimatePresence mode="popLayout">
 							{filteredPatients.length > 0 ? (
-								filteredPatients.map((patient) => (
-									<div key={patient.uid} className="p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-8 hover:bg-pink-50/20 transition-all group">
-										{/* Profil Utama */}
-										<div className="flex items-center gap-6 min-w-0">
-											<div className="w-16 h-16 rounded-2xl bg-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-600/20 text-sm font-black uppercase tracking-widest shrink-0">
-												{patient.nama ? patient.nama.charAt(0) : "P"}
-											</div>
-											<div className="min-w-0">
-												<div className="flex flex-wrap items-center gap-3 mb-1.5">
-													<p className="text-md font-black text-gray-800 group-hover:text-pink-600 transition-colors truncate">{patient.nama}</p>
-													<span className="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200/60 text-gray-500 px-3 py-1 rounded-lg">{getTipeLabel(patient.tipe)}</span>
+								filteredPatients.map((patient) => {
+									// Cari apakah ada data pemeriksaan terikat dengan UID pasien ini
+									const record = healthRecords[patient.uid];
+									const hasChecked = !!record;
+
+									return (
+										<div key={patient.uid} className="p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-8 hover:bg-pink-50/20 transition-all group">
+											{/* Profil Utama */}
+											<div className="flex items-center gap-6 min-w-0 flex-1">
+												<div className="w-16 h-16 rounded-2xl bg-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-600/20 text-sm font-black uppercase tracking-widest shrink-0">
+													{patient.nama ? patient.nama.charAt(0) : "P"}
 												</div>
-												<div className="flex flex-col gap-1 text-xs text-gray-400 font-bold">
-													<p>
-														NIK: <span className="text-gray-600">{patient.nik}</span>
-													</p>
-													<div className="flex items-center gap-3 mt-0.5 text-gray-500 font-medium">
-														<span className="flex items-center gap-1">
-															<Phone className="w-3.5 h-3.5 text-pink-500" /> {patient.telepon || "-"}
-														</span>
-														<span className="flex items-center gap-1">
-															<MapPin className="w-3.5 h-3.5 text-pink-500" /> {patient.alamat}
-														</span>
+												<div className="min-w-0">
+													<div className="flex flex-wrap items-center gap-3 mb-1.5">
+														<p className="text-md font-black text-gray-800 group-hover:text-pink-600 transition-colors truncate">{patient.nama}</p>
+														<span className="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200/60 text-gray-500 px-3 py-1 rounded-lg">{getTipeLabel(patient.tipe)}</span>
+													</div>
+													<div className="flex flex-col gap-1 text-xs text-gray-400 font-bold">
+														<p>
+															NIK: <span className="text-gray-600">{patient.nik}</span>
+														</p>
+														<div className="flex items-center gap-3 mt-0.5 text-gray-500 font-medium">
+															<span className="flex items-center gap-1">
+																<Phone className="w-3.5 h-3.5 text-pink-500" /> {patient.telepon || "-"}
+															</span>
+															<span className="flex items-center gap-1">
+																<MapPin className="w-3.5 h-3.5 text-pink-500" /> {patient.alamat}
+															</span>
+														</div>
 													</div>
 												</div>
 											</div>
-										</div>
 
-										{/* Parameter Medis */}
-										<div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full xl:w-auto xl:min-w-[560px]">
-											<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-												<p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Berat Badan</p>
-												<p className="text-xs font-black text-gray-700">{patient.berat_badan || "-- kg"}</p>
-											</div>
-											<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-												<p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Tinggi Badan</p>
-												<p className="text-xs font-black text-gray-700">{patient.tinggi_badan || "-- cm"}</p>
-											</div>
-											<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-												<div className="flex items-center gap-1.5 text-gray-400 mb-1">
-													<CalendarIcon className="w-3.5 h-3.5" strokeWidth={3} />
-													<p className="text-[9px] font-black uppercase tracking-widest">Tgl Lahir</p>
+											{/* Bagian Kondisional Parameter Medis / Kondisi Belum Diperiksa */}
+											{hasChecked ? (
+												<div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full xl:w-auto xl:min-w-[560px]">
+													<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+														<p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Berat Badan</p>
+														<p className="text-xs font-black text-gray-700">{record.beratBadan ? `${record.beratBadan} kg` : "--"}</p>
+													</div>
+													<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+														<p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Tinggi Badan</p>
+														<p className="text-xs font-black text-gray-700">{record.tinggiBadan ? `${record.tinggiBadan} cm` : "--"}</p>
+													</div>
+													<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+														<div className="flex items-center gap-1.5 text-gray-400 mb-1">
+															<CalendarIcon className="w-3.5 h-3.5" strokeWidth={3} />
+															<p className="text-[9px] font-black uppercase tracking-widest">Tgl Periksa</p>
+														</div>
+														<p className="text-xs font-black text-gray-700">{formatShortDate(record.waktuPemeriksaan)}</p>
+													</div>
+													<div className="flex items-center justify-between gap-3">
+														<span className={cn("w-full text-center rounded-2xl px-4 py-3 border text-[10px] font-black uppercase tracking-widest", statusStyles[record.status_pertumbuhan || "Normal"])}>
+															{record.status_pertumbuhan || "Normal"}
+														</span>
+														<button
+															className="p-3 bg-gray-50 hover:bg-pink-600 hover:text-white rounded-2xl transition-all active:scale-95 shadow-sm"
+															type="button"
+															aria-label={`Lihat detail ${patient.nama}`}
+														>
+															<ChevronRight className="w-5 h-5" strokeWidth={3} />
+														</button>
+													</div>
 												</div>
-												<p className="text-xs font-black text-gray-700">{patient.tanggalLahir || "-"}</p>
-											</div>
-											<div className="flex items-center justify-between gap-3">
-												<span className={cn("w-full text-center rounded-2xl px-4 py-3 border text-[10px] font-black uppercase tracking-widest", statusStyles[patient.status_pertumbuhan || "Normal"])}>
-													{patient.status_pertumbuhan || "Normal"}
-												</span>
-												<button className="p-3 bg-gray-50 hover:bg-pink-600 hover:text-white rounded-2xl transition-all active:scale-95 shadow-sm" type="button" aria-label={`Lihat detail ${patient.nama}`}>
-													<ChevronRight className="w-5 h-5" strokeWidth={3} />
-												</button>
-											</div>
+											) : (
+												/* TAMPILAN ALTERNATIF JIKA BELUM ADA HEALTHRECORD */
+												<div className="flex items-center justify-between gap-4 w-full xl:w-auto xl:min-w-[560px] bg-gray-50/50 rounded-3xl p-4 border border-dashed border-gray-200">
+													<div className="flex items-center gap-3 text-gray-400">
+														<Activity className="w-5 h-5 opacity-40 animate-pulse" />
+														<span className="text-xs font-bold italic tracking-wide">Belum ada riwayat pemeriksaan klinis</span>
+													</div>
+													<div className="flex items-center gap-3">
+														<span className={cn("rounded-2xl px-4 py-2.5 border text-[10px] font-black uppercase tracking-widest", statusStyles["Belum Diperiksa"])}>Belum Diperiksa</span>
+														<button className="p-2.5 bg-white border border-gray-200 text-gray-400 hover:bg-pink-600 hover:text-white rounded-xl transition-all shadow-sm" type="button">
+															<ChevronRight className="w-4 h-4" strokeWidth={3} />
+														</button>
+													</div>
+												</div>
+											)}
 										</div>
-									</div>
-								))
+									);
+								})
 							) : (
 								<div className="py-16 border-2 border-dashed border-gray-100 rounded-[40px] text-center bg-white/50 m-6">
 									<Users className="w-10 h-10 text-gray-400 mx-auto mb-3 opacity-30" strokeWidth={1} />

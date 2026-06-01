@@ -21,7 +21,6 @@ const LoginPage: React.FC = () => {
 
 		try {
 			await signInWithEmailAndPassword(auth, email.trim(), password);
-			alert("Login Berhasil!");
 			navigate("/dashboard");
 		} catch (err: any) {
 			console.error("Firebase login error", err);

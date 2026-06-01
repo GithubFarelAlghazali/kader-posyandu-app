@@ -64,8 +64,6 @@ const RegisterPage: React.FC = () => {
 				dibuat_pada: new Date().toISOString(),
 			});
 
-			alert(`Registrasi berhasil sebagai kader!`);
-
 			// 5. Arahkan ke rute dashboard utama (logika pengecekan role ada di App.tsx/Router tingkat atas)
 			navigate("/login");
 		} catch (err: any) {

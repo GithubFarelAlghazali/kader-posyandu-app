@@ -8,7 +8,6 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 type PatientStatus = "Normal" | "Perhatian" | "Risiko";
 
-// 1. Interface disesuaikan persis dengan isi dokumen di gambar console-mu
 interface PatientData {
 	uid: string;
 	nama: string;

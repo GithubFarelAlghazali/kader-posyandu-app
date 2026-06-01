@@ -1,25 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth, db } from "../firebase/config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 const RegisterPage: React.FC = () => {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
+	const [telp, setTelp] = useState("");
 	const [nik, setNik] = useState("");
 	const [alamat, setAlamat] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-	// const handleRegister = (e: React.FormEvent) => {
-	// 	e.preventDefault();
-	// 	// Dummy register: langsung login
-	// 	localStorage.setItem("isLoggedIn", "true");
-	// 	navigate("/dashboard");
-	// };
 
 	// State tambahan untuk UX & Handling Error
 	const [error, setError] = useState("");
@@ -31,7 +25,6 @@ const RegisterPage: React.FC = () => {
 		e.preventDefault();
 		setError("");
 
-		// 1. Validasi sederhana kecocokan password frontend
 		if (password !== confirmPassword) {
 			setError("Kata sandi dan konfirmasi kata sandi tidak cocok.");
 			return;
@@ -45,31 +38,23 @@ const RegisterPage: React.FC = () => {
 		setLoading(true);
 
 		try {
-			// 2. Buat akun kredensial di Firebase Authentication
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 			const user = userCredential.user;
 
-			// 3. Tentukan status awal akun berdasarkan role (Kader langsung aktif, Pasien butuh verifikasi)
-			// const statusAwal = role === "kader" ? "aktif" : "menunggu_verifikasi";
-
-			// 4. Simpan metadata profil ke Cloud Firestore menggunakan UID dari Auth
 			await setDoc(doc(db, "users", user.uid), {
 				uid: user.uid,
 				nama: name,
 				email: email,
 				nik: nik,
+				telepon: telp,
 				alamat: alamat,
-				role: "kader", // [kader, pasien-anak, pasien-hamil, pasien-dewasa, pasien-lansia]
-				// status_akun: statusAwal,
+				role: "kader",
 				dibuat_pada: new Date().toISOString(),
 			});
 
-			alert(`Registrasi berhasil sebagai kader!`);
-
-			// 5. Arahkan ke rute dashboard utama (logika pengecekan role ada di App.tsx/Router tingkat atas)
+			await signOut(auth);
 			navigate("/login");
 		} catch (err: any) {
-			// Mapping error bawaan firebase agar lebih ramah dibaca pengguna lokal
 			if (err.code === "auth/email-already-in-use") {
 				setError("Email tersebut sudah terdaftar.");
 			} else if (err.code === "auth/invalid-email") {
@@ -86,6 +71,7 @@ const RegisterPage: React.FC = () => {
 		<div className="min-h-screen flex flex-col items-center justify-center bg-pink-50">
 			<div className="w-full max-w-md bg-white bg-opacity-60 rounded-3xl shadow-lg p-8 flex flex-col items-center">
 				<h2 className="text-2xl font-bold mb-2 text-center">Daftar Akun</h2>
+				{error && <div className="w-full p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-2xl border border-red-200">{error}</div>}
 				<form className="w-full" onSubmit={handleRegister}>
 					<div className="w-full mb-4">
 						<label htmlFor="">
@@ -115,9 +101,24 @@ const RegisterPage: React.FC = () => {
 					</div>
 					<div className="w-full mb-4">
 						<label htmlFor="">
+							No. Telepon
+							<input
+								required
+								type="tel"
+								pattern="^\+628[1-9][0-9]{7,10}$|^\+622[1-9][0-9]{6,8}$"
+								placeholder="Format +62"
+								className="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-300"
+								value={telp}
+								onChange={(e) => setTelp(e.target.value)}
+							/>
+						</label>
+					</div>
+					<div className="w-full mb-4">
+						<label htmlFor="">
 							NIK
 							<input
 								required
+								pattern="\d{16}"
 								type="text"
 								maxLength="16"
 								minLength="16"

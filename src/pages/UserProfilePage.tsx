@@ -38,10 +38,9 @@ export default function UserProfilePage() {
 			<motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[40px] p-10 border border-outline-variant/30 shadow-clinical relative overflow-hidden group">
 				<div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-bl-full -z-0 blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
 				<div className="flex flex-col sm:flex-row items-center gap-8 mb-8 relative z-10">
-					<img src={userData.avatar} alt="Avatar" className="w-28 h-28 rounded-full border-4 border-primary/20 shadow-lg object-cover bg-surface-container" />
 					<div className="flex-1 min-w-0 space-y-2">
-						<h2 className="text-title-lg font-black text-on-surface truncate flex items-center gap-2">
-							<User className="w-6 h-6 text-primary" /> {userData.nama}
+						<h2 className="text-2xl font-black text-on-surface truncate flex items-center gap-2">
+							<User className="size-20 text-primary" /> {userData.nama}
 						</h2>
 						<div className="flex items-center gap-2 text-label-md text-on-surface opacity-60">
 							<Mail className="w-4 h-4 text-primary" /> {userData.email}

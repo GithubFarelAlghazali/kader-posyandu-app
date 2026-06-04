@@ -19,10 +19,10 @@ interface QueuePatient {
 	id: string;
 	schedule_id: string;
 	nomor_antrean: number;
-	pasien_uid: string;
-	pasien_nama: string;
-	pasien_kategori: "anak" | "hamil" | "dewasa" | "lansia";
-	status_panggilan: "menunggu" | "diperiksa" | "selesai" | "terlewat";
+	patient_uid: string;
+	nama_pasien: string;
+	tipe: "anak" | "hamil" | "dewasa" | "lansia";
+	status_antrean: "menunggu" | "diperiksa" | "selesai" | "terlewat";
 	catatan_keluhan?: string;
 }
 
@@ -96,19 +96,19 @@ export function Queue() {
 	const filteredQueues = useMemo(() => {
 		const normalized = searchQuery.trim().toLowerCase();
 		if (!normalized) return rawQueues;
-		return rawQueues.filter((q) => q.pasien_nama.toLowerCase().includes(normalized));
+		return rawQueues.filter((q) => q.nama_pasien.toLowerCase().includes(normalized));
 	}, [searchQuery, rawQueues]);
 
 	// 4. Kalkulasi Metrik Ringkasan Secara Real-time
 	const summary = useMemo(() => {
-		const waiting = rawQueues.filter((q) => q.status_panggilan === "menunggu");
-		const serving = rawQueues.find((q) => q.status_panggilan === "diperiksa");
-		const finished = rawQueues.filter((q) => q.status_panggilan === "selesai").length;
+		const waiting = rawQueues.filter((q) => q.status_antrean === "menunggu");
+		const serving = rawQueues.find((q) => q.status_antrean === "diperiksa");
+		const finished = rawQueues.filter((q) => q.status_antrean === "selesai").length;
 
 		const currentNumber = serving ? String(serving.nomor_antrean).padStart(3, "0") : "---";
-		const totalAnak = rawQueues.filter((q) => q.pasien_kategori === "anak" && q.status_panggilan === "menunggu").length;
-		const totalHamil = rawQueues.filter((q) => q.pasien_kategori === "hamil" && q.status_panggilan === "menunggu").length;
-		const totalLansia = rawQueues.filter((q) => q.pasien_kategori === "lansia" && q.status_panggilan === "menunggu").length;
+		const totalAnak = rawQueues.filter((q) => q.tipe === "anak" && q.status_antrean === "menunggu").length;
+		const totalHamil = rawQueues.filter((q) => q.tipe === "hamil" && q.status_antrean === "menunggu").length;
+		const totalLansia = rawQueues.filter((q) => q.tipe === "lansia" && q.status_antrean === "menunggu").length;
 
 		return {
 			currentNumber,
@@ -129,13 +129,13 @@ export function Queue() {
 
 			// Jika memanggil pasien baru (status diperiksa), ganti pasien yang sedang diperiksa sebelumnya menjadi 'selesai'
 			if (nextStatus === "diperiksa") {
-				const currentServing = rawQueues.find((q) => q.status_panggilan === "diperiksa");
+				const currentServing = rawQueues.find((q) => q.status_antrean === "diperiksa");
 				if (currentServing) {
-					await updateDoc(doc(db, "queues", currentServing.id), { status_panggilan: "selesai" });
+					await updateDoc(doc(db, "queues", currentServing.id), { status_antrean: "selesai" });
 				}
 			}
 
-			await updateDoc(queueDocRef, { status_panggilan: nextStatus });
+			await updateDoc(queueDocRef, { status_antrean: nextStatus });
 		} catch (error) {
 			console.error("Gagal mengupdate status panggilan antrean:", error);
 			alert("Gagal merubah antrean, periksa koneksi internet.");
@@ -144,7 +144,7 @@ export function Queue() {
 
 	// 6. Tombol Panggil Otomatis (Next Auto Call)
 	const handleNextAutoCall = async () => {
-		const nextInLine = rawQueues.find((q) => q.status_panggilan === "menunggu");
+		const nextInLine = rawQueues.find((q) => q.status_antrean === "menunggu");
 		if (!nextInLine) {
 			alert("Seluruh antrean hari ini telah selesai dilayani!");
 			return;
@@ -261,8 +261,8 @@ export function Queue() {
 					<AnimatePresence mode="popLayout">
 						{filteredQueues.length > 0 ? (
 							filteredQueues.map((item) => {
-								const isServing = item.status_panggilan === "diperiksa";
-								const isDone = item.status_panggilan === "selesai";
+								const isServing = item.status_antrean === "diperiksa";
+								const isDone = item.status_antrean === "selesai";
 
 								return (
 									<motion.div
@@ -286,9 +286,9 @@ export function Queue() {
 
 											{/* Detail Ringkas Pasien */}
 											<div className="min-w-0">
-												<p className="text-md font-black text-gray-800 truncate group-hover:text-pink-600 transition-colors">{item.pasien_nama}</p>
+												<p className="text-md font-black text-gray-800 truncate group-hover:text-pink-600 transition-colors">{item.nama_pasien}</p>
 												<div className="flex flex-wrap items-center gap-2 mt-1">
-													<span className="text-[9px] font-black uppercase tracking-widest text-pink-700 bg-pink-50 px-2 py-0.5 rounded border border-pink-100">{getKategoriLabel(item.pasien_kategori)}</span>
+													<span className="text-[9px] font-black uppercase tracking-widest text-pink-700 bg-pink-50 px-2 py-0.5 rounded border border-pink-100">{getKategoriLabel(item.tipe)}</span>
 													{item.catatan_keluhan && <span className="text-xs text-gray-400 font-medium truncate max-w-xs">• Keluhan: "{item.catatan_keluhan}"</span>}
 												</div>
 											</div>
